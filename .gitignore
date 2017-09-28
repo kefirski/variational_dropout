@@ -16,6 +16,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+data/
+experimentation.py
 lib64/
 parts/
 sdist/
