@@ -38,7 +38,7 @@ class VariationalDropout(nn.Module):
         if self.bias is not None:
             self.bias.data.uniform_(-stdv, stdv)
 
-    def neg_kld(self, log_alpha, alpha):
+    def kld(self, log_alpha, alpha):
         return 0.5 * log_alpha.sum() + t.stack([t.pow(alpha, power) * self.c[power] for power in range(3)]).sum()
 
     def forward(self, input):
@@ -62,4 +62,4 @@ class VariationalDropout(nn.Module):
         if mu.is_cuda:
             eps = eps.cuda()
 
-        return eps * std + mu, self.neg_kld(self.log_alpha, alpha)
+        return eps * std + mu, self.kld(self.log_alpha, alpha)
