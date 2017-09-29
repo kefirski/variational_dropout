@@ -22,9 +22,9 @@ class VariationalDropout(nn.Module):
         self.out_size = out_size
 
         self.theta = Parameter(t.FloatTensor(input_size, out_size))
-        self.log_alpha = Parameter(t.FloatTensor(out_size).fill_(log_alpha))
-
         self.bias = Parameter(t.Tensor(out_size))
+
+        self.log_alpha = Parameter(t.FloatTensor(out_size).fill_(log_alpha))
 
         self.reset_parameters()
 
@@ -39,7 +39,7 @@ class VariationalDropout(nn.Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def kld(self, log_alpha, alpha):
-        return 0.5 * log_alpha.sum() + t.stack([t.pow(alpha, power) * self.c[power] for power in range(3)]).sum()
+        return -0.5 * log_alpha.sum() - t.stack([t.pow(alpha, power) * self.c[power] for power in range(3)]).sum()
 
     def forward(self, input):
         """
@@ -56,7 +56,7 @@ class VariationalDropout(nn.Module):
         alpha = self.log_alpha.exp()
 
         mu = t.addmm(self.bias, input, self.theta)
-        std = t.addmm(t.pow(self.bias, 2), t.pow(input, 2), t.pow(self.theta, 2)) * alpha
+        std = t.addmm(self.bias.abs, input.abs, self.theta.abs()) * alpha.sqrt()
 
         eps = Variable(t.randn(*mu.size()))
         if mu.is_cuda:
