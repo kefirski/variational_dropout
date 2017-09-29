@@ -1,5 +1,5 @@
-import torch as t
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class SimpleModel(nn.Module):
@@ -23,3 +23,8 @@ class SimpleModel(nn.Module):
         """
 
         return self.fc(input)
+
+    def loss(self, **kwargs):
+        out = self(kwargs['input'])
+        return F.cross_entropy(out, kwargs['target'], size_average=kwargs['average'])
+

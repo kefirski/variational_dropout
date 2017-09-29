@@ -51,7 +51,7 @@ class VariationalDropout(nn.Module):
         '''
         Since dropout is approximated with Local Reparameterization Trick,
         we firsly have to obtain mu and std of resulting Gaussian, 
-        and then perform sampling of result from it
+        and then perform sampling of the result from it
         '''
 
         mu = t.addmm(self.bias, input, self.theta)

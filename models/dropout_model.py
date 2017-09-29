@@ -29,3 +29,7 @@ class DropoutModel(nn.Module):
                 result = F.dropout(result, p, training=True)
 
         return result
+
+    def loss(self, **kwargs):
+        out = self(kwargs['input'], kwargs['p'])
+        return F.cross_entropy(out, kwargs['target'], size_average=kwargs['average'])

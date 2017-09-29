@@ -23,25 +23,23 @@ class VariationalDropoutModel(nn.Module):
                  filled with logits of likelihood and kld estimation
         """
 
-        if train:
+        result = input
 
-            result = input
+        if train:
             kld = 0
 
-            for i, layer in enumerate(self.fc):
-                if i < len(self.fc) - 1:
-                    result, kld = layer(result)
-                    result = F.elu(result)
-                    kld += kld
-                else:
-                    return layer(result), kld
-        else:
+            for layer in self.fc[:-1]:
+                result, kld = layer(result, train)
+                result = F.elu(result)
+                kld += kld
 
-            result = input
+            return self.fc[-1](result), kld
 
-            for i, layer in enumerate(self.fc):
-                result = layer(result)
-                if i < len(self.fc) - 1:
-                    result = F.elu(result)
+        for layer in self.fc[:-1]:
+            result = F.elu(layer(result, train))
 
-            return result
+        return self.fc[-1](result)
+
+    def loss(self, **kwargs):
+        out, kld = self(kwargs['input'], kwargs['train'])
+        return F.cross_entropy(out, kwargs['target'], size_average=kwargs['average']), kld
