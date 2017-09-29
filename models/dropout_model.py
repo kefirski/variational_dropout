@@ -23,7 +23,7 @@ class DropoutModel(nn.Module):
         result = input
 
         for i, layer in enumerate(self.fc):
-            result = F.elu(layer(input))
+            result = F.elu(layer(result))
 
             if i < len(self.fc) - 1:
                 result = F.dropout(result, p, training=True)
