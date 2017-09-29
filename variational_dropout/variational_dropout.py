@@ -41,9 +41,10 @@ class VariationalDropout(nn.Module):
     def kld(self, log_alpha, alpha):
         return -0.5 * log_alpha.sum() - t.stack([t.pow(alpha, power) * self.c[power] for power in range(3)]).sum()
 
-    def forward(self, input):
+    def forward(self, input, train=False):
         """
         :param input: An float tensor with shape of [batch_size, input_size]
+        :param train: An boolean value indicating whether forward propagation called when training is performed
         :return: An float tensor with shape of [batch_size, out_size] and negative layer-kld estimation
         """
 
@@ -53,9 +54,15 @@ class VariationalDropout(nn.Module):
         and then perform sampling of result from it
         '''
 
-        alpha = self.log_alpha.exp()
-
         mu = t.addmm(self.bias, input, self.theta)
+        if not train:
+            '''
+            Expectation over models from posterior is approximated with mean value.
+            Better results could be achived by MC approximation.
+            '''
+            return mu
+
+        alpha = self.log_alpha.exp()
         std = t.addmm(self.bias.abs, input.abs, self.theta.abs()) * alpha.sqrt()
 
         eps = Variable(t.randn(*mu.size()))
