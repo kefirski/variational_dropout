@@ -9,11 +9,9 @@ class SimpleModel(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(784, 500),
             nn.ELU(),
-            nn.Linear(500, 400),
+            nn.Linear(500, 50),
             nn.ELU(),
-            nn.Linear(400, 100),
-            nn.ELU(),
-            nn.Linear(100, 10)
+            nn.Linear(50, 10)
         )
 
     def forward(self, input):

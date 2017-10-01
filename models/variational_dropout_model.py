@@ -10,9 +10,8 @@ class VariationalDropoutModel(nn.Module):
 
         self.fc = nn.ModuleList([
             VariationalDropout(784, 500),
-            VariationalDropout(500, 400),
-            VariationalDropout(400, 100),
-            nn.Linear(100, 10)
+            VariationalDropout(500, 50),
+            nn.Linear(50, 10)
         ])
 
     def forward(self, input, train=False):

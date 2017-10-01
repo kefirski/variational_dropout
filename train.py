@@ -22,7 +22,7 @@ if __name__ == "__main__":
                         help='use cuda (default: False)')
     parser.add_argument('--learning-rate', type=float, default=0.0005, metavar='LR',
                         help='learning rate (default: 0.0005)')
-    parser.add_argument('--mode', type=str, default='vardropout', metavar='M',
+    parser.add_argument('--mode', type=str, default='simple', metavar='M',
                         help='training mode (default: simple)')
     args = parser.parse_args()
 
@@ -80,11 +80,6 @@ if __name__ == "__main__":
 
             loss.backward()
             optimizer.step()
-
-            if args.mode == 'vardropout':
-                for layer in model.fc:
-                    if isinstance(layer, VariationalDropout):
-                        layer.clip_alpha()
 
             if iteration % 50 == 0:
                 print('train epoch {}, iteration {}, loss {}'.format(epoch, iteration, loss.cpu().data.numpy()[0]))

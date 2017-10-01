@@ -8,9 +8,8 @@ class DropoutModel(nn.Module):
 
         self.fc = nn.ModuleList([
             nn.Linear(784, 500),
-            nn.Linear(500, 400),
-            nn.Linear(400, 100),
-            nn.Linear(100, 10)
+            nn.Linear(500, 50),
+            nn.Linear(50, 10)
         ])
 
     def forward(self, input, p=0):
