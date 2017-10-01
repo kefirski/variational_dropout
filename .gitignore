@@ -18,6 +18,9 @@ eggs/
 .eggs/
 lib/
 data/
+simple/
+dropout/
+vardropout/vardropout/
 experimentation.py
 lib64/
 parts/

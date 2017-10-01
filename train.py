@@ -1,17 +1,20 @@
 import argparse
+
 import torch as t
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.transforms as transforms
+from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.optim import Adam
 from torchvision import datasets
 
 from models import *
+from variational_dropout.variational_dropout import VariationalDropout
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(description='train')
-    parser.add_argument('--num-epochs', type=int, default=10, metavar='NI',
+    parser.add_argument('--num-epochs', type=int, default=30, metavar='NI',
                         help='num epochs (default: 10)')
     parser.add_argument('--batch-size', type=int, default=70, metavar='BS',
                         help='batch size (default: 70)')
@@ -19,9 +22,11 @@ if __name__ == "__main__":
                         help='use cuda (default: False)')
     parser.add_argument('--learning-rate', type=float, default=0.0005, metavar='LR',
                         help='learning rate (default: 0.0005)')
-    parser.add_argument('--mode', type=str, default='dropout', metavar='M',
+    parser.add_argument('--mode', type=str, default='vardropout', metavar='M',
                         help='training mode (default: simple)')
     args = parser.parse_args()
+
+    writer = SummaryWriter(args.mode)
 
     assert args.mode in ['simple', 'dropout', 'vardropout'], 'Invalid mode, should be in [simple, dropout, vardropout]'
     Model = {
@@ -76,6 +81,11 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
 
+            if args.mode == 'vardropout':
+                for layer in model.fc:
+                    if isinstance(layer, VariationalDropout):
+                        layer.clip_alpha()
+
             if iteration % 50 == 0:
                 print('train epoch {}, iteration {}, loss {}'.format(epoch, iteration, loss.cpu().data.numpy()[0]))
 
@@ -101,3 +111,6 @@ if __name__ == "__main__":
                 print('_____________')
                 print(loss)
                 print('_____________')
+                writer.add_scalar('data/loss', loss, epoch * len(train_dataloader) + iteration)
+
+    writer.close()
