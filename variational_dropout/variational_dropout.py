@@ -4,7 +4,6 @@ import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from torch.nn.init import xavier_normal
 from torch.nn.parameter import Parameter
 
 
@@ -79,4 +78,3 @@ class VariationalDropout(nn.Module):
     def max_alpha(self):
         log_alpha = self.log_sigma2 - self.theta ** 2
         return t.max(log_alpha.exp())
-
