@@ -1,5 +1,5 @@
 import argparse
-
+from math import tanh
 import torch as t
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -76,7 +76,7 @@ if __name__ == "__main__":
                 loss = model.loss(input=input, target=target, p=0.4, average=True)
             else:
                 likelihood, kld = model.loss(input=input, target=target, train=True, average=True)
-                loss = likelihood + kld
+                loss = likelihood + kld * tanh((epoch * len(train_dataloader) + iteration)/2000)
 
             loss.backward()
             optimizer.step()

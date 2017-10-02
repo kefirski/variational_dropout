@@ -9,7 +9,7 @@ from torch.nn.parameter import Parameter
 
 
 class VariationalDropout(nn.Module):
-    def __init__(self, input_size, out_size, log_sigma2=-4.6, threshold=3):
+    def __init__(self, input_size, out_size, log_sigma2=-10, threshold=3):
         """
         :param input_size: An int of input size
         :param log_sigma2: Initial value of log sigma ^ 2.
@@ -40,7 +40,7 @@ class VariationalDropout(nn.Module):
         self.bias.data.uniform_(-stdv, stdv)
 
     @staticmethod
-    def clip(input, to=7):
+    def clip(input, to=8):
         input = input.masked_fill(input < -to, -to)
         input = input.masked_fill(input > to, to)
 
@@ -60,7 +60,7 @@ class VariationalDropout(nn.Module):
         :return: An float tensor with shape of [batch_size, out_size] and negative layer-kld estimation
         """
 
-        log_alpha = self.clip(self.log_sigma2 - self.theta ** 2)
+        log_alpha = self.clip(self.log_sigma2 - t.log(self.theta ** 2))
         kld = self.kld(log_alpha)
 
         if not train:
@@ -75,3 +75,8 @@ class VariationalDropout(nn.Module):
             eps = eps.cuda()
 
         return std * eps + mu + self.bias, kld
+
+    def max_alpha(self):
+        log_alpha = self.log_sigma2 - self.theta ** 2
+        return t.max(log_alpha.exp())
+
