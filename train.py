@@ -14,7 +14,7 @@ from variational_dropout.variational_dropout import VariationalDropout
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='train')
-    parser.add_argument('--num-epochs', type=int, default=30, metavar='NI',
+    parser.add_argument('--num-epochs', type=int, default=60, metavar='NI',
                         help='num epochs (default: 10)')
     parser.add_argument('--batch-size', type=int, default=70, metavar='BS',
                         help='batch size (default: 70)')
@@ -22,7 +22,7 @@ if __name__ == "__main__":
                         help='use cuda (default: False)')
     parser.add_argument('--learning-rate', type=float, default=0.0005, metavar='LR',
                         help='learning rate (default: 0.0005)')
-    parser.add_argument('--mode', type=str, default='simple', metavar='M',
+    parser.add_argument('--mode', type=str, default='vardropout', metavar='M',
                         help='training mode (default: simple)')
     args = parser.parse_args()
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     if args.use_cuda:
         model.cuda()
 
-    optimizer = Adam(model.parameters(), args.learning_rate, eps=1e-6)
+    optimizer = Adam(model.parameters(), args.learning_rate)
 
     cross_enropy_averaged = nn.CrossEntropyLoss(size_average=True)
 
