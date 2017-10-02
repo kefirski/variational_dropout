@@ -37,7 +37,7 @@ class VariationalDropout(nn.Module):
         self.bias.data.uniform_(-stdv, stdv)
 
     @staticmethod
-    def clip(input, to=13):
+    def clip(input, to=8):
         input = input.masked_fill(input < -to, -to)
         input = input.masked_fill(input > to, to)
 
@@ -57,8 +57,7 @@ class VariationalDropout(nn.Module):
         :return: An float tensor with shape of [batch_size, out_size] and negative layer-kld estimation
         """
 
-        log_alpha = self.clip(self.log_sigma2 - self.theta ** 2)
-        # log_alpha = self.log_sigma2 - self.theta ** 2
+        log_alpha = self.log_sigma2 - self.theta ** 2
         alpha = log_alpha.exp()
         kld = self.kld(log_alpha, alpha)
 
@@ -67,10 +66,10 @@ class VariationalDropout(nn.Module):
             return t.addmm(self.bias, input, self.theta.masked_fill(mask, 0))
 
         mu = t.mm(input, self.theta)
-        std = t.sqrt(t.mm(input ** 2, self.log_sigma2.exp()))
+        std = t.sqrt(t.mm(input ** 2, self.clip(log_alpha).exp() * self.theta ** 2))
 
         eps = Variable(t.randn(*mu.size()))
         if input.is_cuda:
-            eps.cuda()
+            eps = eps.cuda()
 
         return std * eps + mu + self.bias, kld
