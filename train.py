@@ -54,7 +54,7 @@ if __name__ == "__main__":
     if args.use_cuda:
         model.cuda()
 
-    optimizer = Adam(model.parameters(), args.learning_rate)
+    optimizer = Adam(model.parameters(), args.learning_rate, eps=1e-6)
 
     cross_enropy_averaged = nn.CrossEntropyLoss(size_average=True)
 
