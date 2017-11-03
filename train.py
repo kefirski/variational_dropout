@@ -75,7 +75,8 @@ if __name__ == "__main__":
                 loss = model.loss(input=input, target=target, p=0.4, average=True)
             else:
                 likelihood, kld = model.loss(input=input, target=target, train=True, average=True)
-                loss = likelihood + kld if (epoch * len(train_dataloader) + iteration) > 8000 else likelihood
+                coef = min(epoch / 40., 1.)
+                loss = likelihood + kld * coef
 
             loss.backward()
             optimizer.step()

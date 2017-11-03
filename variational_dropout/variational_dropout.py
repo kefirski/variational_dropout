@@ -50,19 +50,18 @@ class VariationalDropout(nn.Module):
         first_term = self.k[0] * F.sigmoid(self.k[1] + self.k[2] * log_alpha)
         second_term = 0.5 * t.log(1 + t.exp(-log_alpha))
 
-        return -(first_term - second_term - self.k[0]).sum()
+        return -(first_term - second_term - self.k[0]).sum() / (self.input_size * self.out_size)
 
-    def forward(self, input, train=False):
+    def forward(self, input):
         """
         :param input: An float tensor with shape of [batch_size, input_size]
-        :param train: An boolean value indicating whether forward propagation called of training is performed
         :return: An float tensor with shape of [batch_size, out_size] and negative layer-kld estimation
         """
 
         log_alpha = self.clip(self.log_sigma2 - t.log(self.theta ** 2))
         kld = self.kld(log_alpha)
 
-        if not train:
+        if not self.training:
             mask = log_alpha > self.threshold
             return t.addmm(self.bias, input, self.theta.masked_fill(mask, 0))
 
